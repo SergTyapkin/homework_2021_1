@@ -3,7 +3,7 @@
 /* компаратор для обработки буквы 'Ё' - она по неизвестным причинам "больше" любой буквы,
 а потому если нам надо сравнить с 'Ё', вместо этого сравниваем с 'Ж', разбирая случай, когда обе буквы равны.
  */
-let comparator = function(a, b) {
+let comparator = (a, b) => {
     a = a.toLowerCase();
     b = b.toLowerCase();
     if (a === 'ё') {
@@ -24,23 +24,24 @@ let comparator = function(a, b) {
 }
 
 const sort = function (string) {
-    if (!string.length) return null;
+    if (string.length === 0)
+        return null;
 
-    let lastId = 0;
-    let word, sentence = [];
+    let prevSpaceId = 0;
+    let word;
+    let sentence = [];
     string += ' ';
     for (let i = 0; i < string.length; i++) {
-        if (string[i] == ' ') { // идём до первого пробела
-            word = string.substring(lastId, i).split(''); // берём слово до этого пробела в виде массива
-            lastId = i + 1;
+        if (string[i] === ' ') { // идём до первого пробела
+            word = string.substring(prevSpaceId, i).toLowerCase().split(''); // берём слово до этого пробела в виде массива
+            prevSpaceId = i + 1;
             word.sort(comparator); // сортируем буквы в слове
-            if (word.length) {
-                sentence.push(word[0].toUpperCase()); // первая буква - заглавная
-                for (let c = 1; c < word.length; c++) {
-                    sentence[sentence.length - 1] += word[c].toLowerCase(); // остальные - строчные
-                }
+
+            if (word.length != 0) {
+                sentence.push(word.shift().toUpperCase()); // первая буква - заглавная
+                word.forEach(item => sentence[sentence.length - 1] += item);
+                word = [];
             }
-            word = [];
         }
     }
     sentence.sort(comparator); // сортируем слова
