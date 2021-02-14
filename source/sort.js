@@ -1,49 +1,37 @@
 'use strict';
 
-/* компаратор для обработки буквы 'Ё' - она по неизвестным причинам "больше" любой буквы,
-а потому если нам надо сравнить с 'Ё', вместо этого сравниваем с 'Ж', разбирая случай, когда обе буквы равны.
+/**
+ * Компаратор для сортировки русских строк
+ *
+ * @param {number} a - Первая строка.
+ * @param {number} b - Вторая строка.
+ * @returns {boolean}
  */
-let comparator = (a, b) => {
-    a = a.toLowerCase();
-    b = b.toLowerCase();
-    if (a === 'ё') {
-        if (b === 'ё')
-            return 0;
-        else if (b >= 'ж')
-            return -1;
-        else
-            return 1;
-    } else if (b === 'ё') {
-        if (a >= 'ж')
-            return 1;
-        else
-            return -1;
-    } else {
-        return (b<a) - (a<b); // стандартное сравнение, на выходе: -1 / 0 / 1
-    }
+const comparator = (a, b) => {
+    let collator = new Intl.Collator('ru', {
+        sensitivity: "accent",
+    });
+    return collator.compare(a, b);
 }
 
+/**
+ * Сортирует буквы в словах строки, каждое слово делает с большой бквы - остальные буквы маленькие.
+ * Затем сортирует слова в предложении.
+ *
+ * @param {string} string - Обрабатываемая строка.
+ * @returns {string}
+ */
 const sort = function (string) {
     if (string.length === 0)
         return null;
 
-    let prevSpaceId = 0;
-    let word;
     let sentence = [];
-    string += ' ';
-    for (let i = 0; i < string.length; i++) {
-        if (string[i] === ' ') { // идём до первого пробела
-            word = string.substring(prevSpaceId, i).toLowerCase().split(''); // берём слово до этого пробела в виде массива
-            prevSpaceId = i + 1;
-            word.sort(comparator); // сортируем буквы в слове
-
-            if (word.length != 0) {
-                sentence.push(word.shift().toUpperCase()); // первая буква - заглавная
-                word.forEach(item => sentence[sentence.length - 1] += item);
-                word = [];
-            }
-        }
-    }
+    string.split(' ').forEach(item => {
+        item = item.split(''); // кастуем слово в массив для сортировки
+        item.sort(comparator); // сортируем буквы в слове
+        item = item[0].toUpperCase() + item.join('').slice(1).toLowerCase(); // Слепляем первую большую и остаток - маленькие
+        sentence.push(item); // Докидываем в предложение новое слово
+    });
     sentence.sort(comparator); // сортируем слова
     return sentence.join(' ');
 };
