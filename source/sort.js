@@ -1,36 +1,34 @@
 'use strict';
 
 /**
- * Компаратор для сортировки русских строк
- *
- * @param {number} a - Первая строка.
- * @param {number} b - Вторая строка.
- * @returns {boolean}
- */
-const comparator = (a, b) => {
-    let collator = new Intl.Collator('ru', {
-        sensitivity: "accent",
-    });
-    return collator.compare(a, b);
-}
-
-/**
  * Сортирует буквы в словах строки, каждое слово делает с большой бквы - остальные буквы маленькие.
  * Затем сортирует слова в предложении.
  *
  * @param {string} string - Обрабатываемая строка.
  * @returns {string}
  */
-const sort = function (string) {
-    if (string.length === 0)
-        return null;
+const sort = (string) => {
+    /**
+     * Компаратор для сортировки русских строк
+     *
+     * @param {string} a - Первая строка.
+     * @param {string} b - Вторая строка.
+     * @returns {number}
+     */
+    const comparator = (a, b) => {
+        return ( new Intl.Collator('ru', {
+            sensitivity: "accent",
+        }) ).compare(a, b);
+    }
 
-    let sentence = [];
-    string.split(' ').forEach(item => {
-        item = item.split(''); // кастуем слово в массив для сортировки
-        item.sort(comparator); // сортируем буквы в слове
-        item = item[0].toUpperCase() + item.join('').slice(1).toLowerCase(); // Слепляем первую большую и остаток - маленькие
-        sentence.push(item); // Докидываем в предложение новое слово
+    if (string.length === 0)
+        return "";
+
+    const sentence = [];
+    string.split(' ').forEach(word => {
+        word = word.split('').sort(comparator); // сортируем буквы в слове
+        word = word[0].toUpperCase() + word.join('').slice(1).toLowerCase(); // Слепляем первую большую и остаток - маленькие
+        sentence.push(word); // Докидываем в предложение новое слово
     });
     sentence.sort(comparator); // сортируем слова
     return sentence.join(' ');
